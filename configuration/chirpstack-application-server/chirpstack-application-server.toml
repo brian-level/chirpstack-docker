@@ -15,4 +15,5 @@ public_host="chirpstack-application-server:8001"
 
 [application_server.external_api]
 bind="0.0.0.0:8080"
-jwt_secret="verysecret"
+ jwt_secret="ikRhlBp7SbS1hjNZKAPF0n8ZZ7DzuAP74GQ5cRRnNos="
+

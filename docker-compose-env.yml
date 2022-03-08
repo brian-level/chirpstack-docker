@@ -3,10 +3,12 @@ version: "3"
 services:
   chirpstack-network-server:
     image: chirpstack/chirpstack-network-server:3
+    ports:
+      - 8080:8080
     environment:
-      - POSTGRESQL__DSN=postgres://chirpstack_ns:chirpstack_ns@postgresql/chirpstack_ns?sslmode=disable
+      - POSTGRESQL__DSN=postgres://chirpstack_ns:postgres@postgresql/chirpstack_ns?sslmode=disable
       - REDIS__URL=redis://redis:6379
-      - NETWORK_SERVER__BAND__NAME=EU868
+      - NETWORK_SERVER__BAND__NAME=US915
       - NETWORK_SERVER__GATEWAY__BACKEND__MQTT__SERVER=tcp://mosquitto:1883
       - JOIN_SERVER__DEFAULT__SERVER=http://chirpstack-application-server:8003
     depends_on:
@@ -32,13 +34,13 @@ services:
       - 1700:1700/udp
     environment:
       - INTEGRATION__MQTT__AUTH__GENERIC__SERVERS=tcp://mosquitto:1883
-    depends_on: 
+    depends_on:
       - mosquitto
 
   postgresql:
     image: postgres:9.6-alpine
     environment:
-      - POSTGRES_PASSWORD=root 
+      - POSTGRES_PASSWORD=postgres
     volumes:
       - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
       - postgresqldata:/var/lib/postgresql/data
@@ -52,6 +54,13 @@ services:
     image: eclipse-mosquitto:1.6
     ports:
       - 1883:1883
+
+  ponger:
+    image: python:3.9
+    ports:
+      - 8090:8090
+    volumes:
+      - ./python:/tmp/python
 
 volumes:
   postgresqldata:
