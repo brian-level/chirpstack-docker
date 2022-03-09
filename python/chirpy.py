@@ -5,6 +5,7 @@ from chirpstack_api.as_pb.external import api
 from google.protobuf.json_format import Parse
 from concurrent.futures import ThreadPoolExecutor
 from time import sleep
+import socket
 import requests
 import grpc
 import os
@@ -94,13 +95,38 @@ class Handler(BaseHTTPRequestHandler):
 
         print("Downlink replied frame %d eui=%s %d bytes data=%s" % (resp.f_cnt, dev_eui, len(body), body.hex()))
 
+def isOpen(ip, port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1000)
+        try:
+                s.connect((ip, int(port)))
+                s.shutdown(socket.SHUT_RDWR)
+                return True
+        except:
+                return False
+        finally:
+                s.close()
+
+def checkHost(ip, port):
+        ipup = False
+        for i in range(30):
+                if isOpen(ip, port):
+                        ipup = True
+                        break
+                else:
+                        sleep(1)
+        return ipup
+
 def logmein(user, passwd):
         #url = 'http://localhost:8080/api/internal/login'
         url = 'http://host.docker.internal:8080/api/internal/login'
         creds = "{ \"email\": \"" +  user + "\", \"password\": \"" + passwd + "\"}"
 
-        # server could be just starting, so wait a sec
-        sleep(3)
+        hostname = "host.docker.internal"
+
+        if checkHost(hostname, 8090):
+                  print ("App server host " + hostname + " is up ")
+
         x = requests.post(url, data = creds)
         j = json.loads(x.text)
         return j["jwt"]
