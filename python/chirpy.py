@@ -124,7 +124,7 @@ def logmein(user, passwd):
 
         hostname = "host.docker.internal"
 
-        if checkHost(hostname, 8090):
+        if checkHost(hostname, 8080):
                   print ("App server host " + hostname + " is up ")
 
         x = requests.post(url, data = creds)
